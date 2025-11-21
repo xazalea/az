@@ -1,0 +1,25 @@
+// Standard Library for Azalea
+// This file contains core functions written in Azalea itself.
+
+fn max(a, b) {
+  if (a > b) {
+    return a;
+  } else {
+    return b;
+  }
+}
+
+fn min(a, b) {
+  if (a < b) {
+    return a;
+  } else {
+    return b;
+  }
+}
+
+fn abs(n) {
+  if (n < 0) {
+    return 0 - n;
+  }
+  return n;
+}
