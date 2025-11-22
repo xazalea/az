@@ -1,4 +1,4 @@
-import type { Program, Statement, Expression, BinaryExpression, CallExpression, Literal, Identifier, UIPrimitive, FunctionDeclaration, VariableDeclaration, ReturnStatement, IfStatement, WhileStatement, ExpressionStatement } from './types';
+import type { Program, Statement, Expression, BinaryExpression, CallExpression, Literal, Identifier, FunctionDeclaration, VariableDeclaration, ReturnStatement, IfStatement, WhileStatement, ExpressionStatement } from './types';
 
 export class CppGenerator {
     public generate(program: Program): string {
