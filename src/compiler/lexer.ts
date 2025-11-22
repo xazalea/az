@@ -104,13 +104,6 @@ export class Lexer {
         }
 
         if (isLineEmpty) {
-            // Consume the whitespace/comment but don't generate INDENT/DEDENT
-            // actually, if it's a comment, we might want to preserve it?
-            // But usually comments are ignored or handled separately.
-            // The loop in tokenize() handles comments.
-            // We just need to skip the indentation characters here if the line is effectively empty.
-            // But wait, if we consume them here, tokenize loop won't see them.
-            // Better: if line is empty, we do nothing here, and let the main loop consume whitespace/newline.
             return;
         }
 

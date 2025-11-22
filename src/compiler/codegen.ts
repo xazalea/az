@@ -2,8 +2,6 @@ import type { Program, Statement, Expression, BinaryExpression, Literal, Identif
 
 
 export class CodeGenerator {
-    private indentLevel: number = 0;
-
     public generate(program: Program): string {
         const functions = program.body
             .filter(stmt => stmt.type === 'FunctionDeclaration')

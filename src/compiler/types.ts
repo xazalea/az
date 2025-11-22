@@ -1,3 +1,4 @@
+// Tokens
 export const TokenType = {
     // Keywords
     FUNCTION: 'FUNCTION',

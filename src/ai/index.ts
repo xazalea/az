@@ -1,4 +1,4 @@
-import { CreateMLCEngine, MLCEngine, AppConfig } from "@mlc-ai/web-llm";
+import { CreateMLCEngine, MLCEngine, type AppConfig } from "@mlc-ai/web-llm";
 
 // Extended model configuration with the new models
 const CUSTOM_MODELS = [
@@ -174,18 +174,21 @@ const CUSTOM_MODELS = [
 const appConfig: AppConfig = {
     model_list: [
         ...CUSTOM_MODELS.map(m => ({
+            model: "https://huggingface.co/" + m.model_id, // Placeholder, normally full URL
             model_id: m.model_id,
             model_lib: m.model_lib_url,
             vram_required_MB: m.vram_required_MB,
             low_resource_required: m.low_resource_required,
         })),
         {
+            model: "https://huggingface.co/mlc-ai/Llama-3-8B-Instruct-q4f32_1-MLC",
             model_id: "Llama-3-8B-Instruct-q4f32_1-MLC",
             model_lib: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-build/llama-3-8b-instruct-q4f32_1-ctx4k_cs1k-webgpu.wasm",
             vram_required_MB: 6144,
             low_resource_required: false,
         },
         {
+            model: "https://huggingface.co/mlc-ai/Gemma-2-2b-it-q4f32_1-MLC",
             model_id: "Gemma-2-2b-it-q4f32_1-MLC",
             model_lib: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-build/gemma-2-2b-it-q4f32_1-ctx4k_cs1k-webgpu.wasm",
             vram_required_MB: 2048,

@@ -47,25 +47,9 @@ export function astToSource(node: ASTNode, indent: number = 0): string {
             const ui = node as any;
             const args = (ui.props as any).args || [];
             let uiStr = `${ui.elementType}(${args.map((a: any) => astToSource(a, 0)).join(', ')})`;
-            // UI Primitives in statement position need indent, but as expression they don't.
-            // Usually UIPrimitive is an expression.
-            // But if it has children, it looks like a block.
             if (ui.children && ui.children.length > 0) {
-                // It's a block-like structure in source
                 uiStr += `:\n${ui.children.map((c: any) => {
-                    // Children are expressions, but if they are UI primitives with children, they are blocks.
-                    // We need to handle them as statements effectively for indentation.
-                    // But they are technically expressions.
-                    // I'll wrap them in a pseudo-statement handling or just add indentation.
-                    // Since ExpressionStatement calls astToSource(expr, 0), we need to manually indent here?
-                    // No, if astToSource is called recursively for children, we want them indented relative to parent.
-                    // But Expression doesn't take indent param in my logic above for Binary/Call.
-                    // I should pass indent to Expression too?
-                    // For Binary/Call/Literal/Identifier, indent is ignored/0 usually.
-                    // For UIPrimitive, it matters.
-                    return spaces + '    ' + astToSource(c, 0); // This is hacky.
-                    // Better: Make astToSource(Expression) return unindented string, and caller adds indentation?
-                    // Yes.
+                    return spaces + '    ' + astToSource(c, 0);
                 }).join('\n')}`;
             }
             return uiStr;
