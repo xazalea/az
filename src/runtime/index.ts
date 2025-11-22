@@ -19,9 +19,11 @@ export class Runtime {
             }
         };
 
-        const { instance } = await WebAssembly.instantiate(wasmBytes, importObject);
+        // Cast result to any to handle overload confusion in TS (Promise<Instance> vs Promise<{instance, module}>)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const result = await WebAssembly.instantiate(wasmBytes, importObject) as any;
+        const instance = result.instance || result;
 
-        // Use explicit any cast to bypass TS check on exports
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const main = (instance.exports as any).main as CallableFunction;
         

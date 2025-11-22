@@ -1,4 +1,4 @@
-import type { ASTNode, Statement, Expression, Program } from './types';
+import type { ASTNode, Program } from './types';
 
 export function astToSource(node: ASTNode, indent: number = 0): string {
     if (!node) return '';

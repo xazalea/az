@@ -1,7 +1,5 @@
 import { TokenType } from './types';
-import type { Token, Program, Statement, Expression, FunctionDeclaration, VariableDeclaration, IfStatement, WhileStatement, ReturnStatement, ExpressionStatement, BinaryExpression, CallExpression, Identifier, Literal, UIPrimitive, GenerateStatement, AIOptimizeStatement, AIStatement } from './types';
-
-
+import type { Token, Program, Statement, Expression, FunctionDeclaration, VariableDeclaration, IfStatement, WhileStatement, ReturnStatement, ExpressionStatement, AIStatement, GenerateStatement, AIOptimizeStatement } from './types';
 
 export class Parser {
     private tokens: Token[];

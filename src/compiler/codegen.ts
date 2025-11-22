@@ -1,4 +1,4 @@
-import type { Program, Statement, Expression, BinaryExpression, Literal, Identifier, CallExpression, VariableDeclaration, FunctionDeclaration, IfStatement, WhileStatement, ReturnStatement, ExpressionStatement, UIPrimitive } from './types';
+import type { Program, Statement, Expression, BinaryExpression, Literal, CallExpression, UIPrimitive, FunctionDeclaration, ReturnStatement, VariableDeclaration, IfStatement, WhileStatement, ExpressionStatement } from './types';
 
 
 export class CodeGenerator {
