@@ -22,7 +22,8 @@ export class Runtime {
         const { instance } = await WebAssembly.instantiate(wasmBytes, importObject);
 
         // @ts-ignore: Exports typing
-        const main = instance.exports.main as CallableFunction;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const main = (instance.exports as any).main as CallableFunction;
         if (main) {
             main();
         }
