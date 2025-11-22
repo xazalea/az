@@ -43,6 +43,7 @@ export const TokenType = {
     GENERATE: 'GENERATE',
     DESCRIPTION: 'DESCRIPTION',
     AI_OPTIMIZE: 'AI_OPTIMIZE',
+    AI: 'AI',
 } as const;
 
 export type TokenType = typeof TokenType[keyof typeof TokenType];
@@ -72,7 +73,14 @@ export type Statement =
     | VariableDeclaration
     | ExpressionStatement
     | GenerateStatement
-    | AIOptimizeStatement;
+    | AIOptimizeStatement
+    | AIStatement;
+
+export interface AIStatement extends ASTNode {
+    type: 'AIStatement';
+    instruction?: string;
+    body?: Statement[];
+}
 
 export interface GenerateStatement extends ASTNode {
     type: 'GenerateStatement';

@@ -1,4 +1,4 @@
-import { Program, Statement, Expression, BinaryExpression, Literal, Identifier, CallExpression, VariableDeclaration, FunctionDeclaration, IfStatement, WhileStatement, ReturnStatement, ExpressionStatement, UIPrimitive } from './types';
+import { Program, Statement, Expression, BinaryExpression, Literal, Identifier, CallExpression, VariableDeclaration, FunctionDeclaration, IfStatement, WhileStatement, ReturnStatement, ExpressionStatement, UIPrimitive, AIStatement } from './types';
 import { AIEnchancer } from '../ai';
 
 export class Interpreter {
@@ -7,13 +7,15 @@ export class Interpreter {
   private output: string[] = [];
   private container: HTMLElement | null = null;
   private ai: AIEnchancer;
+  // AI Memory in the Language (Task 12)
+  private aiContext: string[] = []; 
 
   constructor(containerId?: string) {
     this.ai = new AIEnchancer();
     if (containerId) {
       this.container = document.getElementById(containerId);
     }
-    // Define built-in functions
+    // Define built-in functions (AI as Standard Library Calls - Task 9)
     this.globals['print'] = (arg: any) => {
       this.output.push(String(arg));
       console.log('Interpreter:', arg);
@@ -32,6 +34,23 @@ export class Interpreter {
         this.container.appendChild(span);
       }
     };
+    
+    // Standard Library AI Calls
+    this.globals['ai_ask'] = async (question: string) => {
+       // AI Standard Library Call
+       this.output.push(`[AI Asking]: ${question}`);
+       // Assuming 'process' or a new method 'chat' would be appropriate here.
+       // Since 'process' handles instructions on code, let's use it or add a new one.
+       // Reusing process for general query for now or assume a chat method exists.
+       // Let's map it to process with empty context for general QA.
+       const answer = await this.ai.process(question, ""); 
+       return answer;
+    };
+
+    this.globals['ai_remember'] = (fact: string) => {
+        this.aiContext.push(fact);
+        this.output.push(`[AI Memory]: Remembered "${fact}"`);
+    };
   }
 
   public getOutput(): string[] {
@@ -41,6 +60,7 @@ export class Interpreter {
   public clearOutput() {
     this.output = [];
     if (this.container) this.container.innerHTML = '';
+    this.aiContext = []; // Reset memory on run? Or persist? Usually reset for script.
   }
 
   public async evaluate(program: Program) {
@@ -55,15 +75,27 @@ export class Interpreter {
     }
 
     // 2. Run main if exists, or run top-level statements (Scripting mode)
-    if (this.functions['main']) {
-      return this.callFunction('main', []);
-    } else {
-      // Scripting mode: execute top-level statements
-      for (const stmt of program.body) {
-        if (stmt.type !== 'FunctionDeclaration') {
-          await this.executeStatement(stmt, this.globals);
+    try {
+        if (this.functions['main']) {
+          return this.callFunction('main', []);
+        } else {
+          // Scripting mode: execute top-level statements
+          for (const stmt of program.body) {
+            if (stmt.type !== 'FunctionDeclaration') {
+              await this.executeStatement(stmt, this.globals);
+            }
+          }
         }
-      }
+    } catch (e: any) {
+        // AI-Based Error Handling (Task 11)
+        const errorMsg = e.message || String(e);
+        this.output.push(`Runtime Error: ${errorMsg}`);
+        this.output.push(`[AI Debugger] Analyzing error...`);
+        
+        // Ask AI to explain/fix
+        // We need the context of where it failed.
+        const fix = await this.ai.process(`Fix this error: ${errorMsg}`, "");
+        this.output.push(`[AI Suggestion]:\n${fix}`);
     }
   }
 
@@ -126,6 +158,8 @@ export class Interpreter {
         const generatedCode = await this.ai.generateFunction(genStmt.name, genStmt.params, genStmt.description);
         this.globals['print'](`[AI] Generated:\n${generatedCode}`);
 
+        // Meta-AI: Runtime Feature Generation (Task 13)
+        // The generated code is parsed and added to runtime.
         const { Parser } = await import('./parser');
         const { Lexer } = await import('./lexer');
 
@@ -163,6 +197,38 @@ export class Interpreter {
           await this.executeStatement(s, scope);
         }
         break;
+
+      case 'AIStatement':
+        const aiStmt = stmt as AIStatement;
+        const instruction = aiStmt.instruction || "Improve this code";
+        this.globals['print'](`[AI] Instruction: "${instruction}"`);
+
+        let contextCode = "";
+        if (aiStmt.body) {
+            const { astToSource } = await import('./ast_utils');
+            contextCode = aiStmt.body.map((s: any) => astToSource(s)).join('\n');
+        }
+        
+        // Inject AI Memory Context
+        const memoryContext = this.aiContext.length > 0 ? `\n[Memory]: ${this.aiContext.join('; ')}` : "";
+        
+        const result = await this.ai.process(instruction + memoryContext, contextCode);
+        this.globals['print'](`[AI] Result:\n${result}`);
+
+        if (result && result.trim().length > 0) {
+             // Meta-AI: Interpreting result as code to execute
+             const { Lexer } = await import('./lexer');
+             const { Parser } = await import('./parser');
+             const lexer = new Lexer(result);
+             const parser = new Parser(lexer.tokenize());
+             const program = parser.parse();
+
+             for (const s of program.body) {
+                 await this.executeStatement(s, scope);
+             }
+        }
+        break;
+
     }
   }
 
