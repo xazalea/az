@@ -14,15 +14,16 @@ export class Runtime {
                 memory: this.memory,
                 log: (arg: number) => console.log(arg),
                 createBox: () => this.createBox(),
-                createText: (ptr: number, len: number) => this.createText(ptr, len), // ptr and len unused in mock, but signature matches
-                createButton: (ptr: number, len: number) => this.createButton(ptr, len), // unused ptr, len
-                appendChild: (parent: number, child: number) => {} // Mock
+                createText: (_ptr: number, _len: number) => this.createText(), 
+                createButton: (_ptr: number, _len: number) => this.createButton(),
+                appendChild: (_parent: number, _child: number) => {} 
             }
         };
 
         const { instance } = await WebAssembly.instantiate(wasmBytes, importObject);
         this.instance = instance;
 
+        // @ts-ignore: Exports typing
         const main = instance.exports.main as CallableFunction;
         if (main) {
             main();
@@ -38,7 +39,7 @@ export class Runtime {
         return 1; // Mock ID
     }
 
-    private createText(ptr: number, len: number): number {
+    private createText(): number {
         // In real impl, read string from memory using ptr/len
         // For now, just printing placeholder
         if (this.container) {
@@ -49,7 +50,7 @@ export class Runtime {
         return 2;
     }
 
-    private createButton(ptr: number, len: number): number {
+    private createButton(): number {
         if (this.container) {
             const btn = document.createElement('button');
             btn.textContent = "WASM Button";

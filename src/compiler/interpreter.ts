@@ -160,7 +160,9 @@ export class Interpreter {
 
         // Meta-AI: Runtime Feature Generation (Task 13)
         // The generated code is parsed and added to runtime.
+        // @ts-ignore: Dynamic import inside method
         const { Parser } = await import('./parser');
+        // @ts-ignore: Dynamic import inside method
         const { Lexer } = await import('./lexer');
 
         const lexer = new Lexer(generatedCode);
@@ -180,13 +182,16 @@ export class Interpreter {
         const optStmt = stmt as any;
         this.globals['print'](`[AI] Optimizing block...`);
 
+        // @ts-ignore: Dynamic import inside method
         const { astToSource } = await import('./ast_utils');
         const originalSource = optStmt.body.map((s: any) => astToSource(s)).join('\n');
 
         const optimizedCode = await this.ai.optimizeBlock(originalSource);
         this.globals['print'](`[AI] Optimized Code:\n${optimizedCode}`);
 
+        // @ts-ignore: Dynamic import inside method
         const { Lexer: LexerOpt } = await import('./lexer');
+        // @ts-ignore: Dynamic import inside method
         const { Parser: ParserOpt } = await import('./parser');
 
         const lexerOpt = new LexerOpt(optimizedCode);
@@ -205,6 +210,7 @@ export class Interpreter {
 
         let contextCode = "";
         if (aiStmt.body) {
+            // @ts-ignore: Dynamic import inside method
             const { astToSource } = await import('./ast_utils');
             contextCode = aiStmt.body.map((s: any) => astToSource(s)).join('\n');
         }
@@ -217,7 +223,9 @@ export class Interpreter {
 
         if (result && result.trim().length > 0) {
              // Meta-AI: Interpreting result as code to execute
+             // @ts-ignore: Dynamic import inside method
              const { Lexer } = await import('./lexer');
+             // @ts-ignore: Dynamic import inside method
              const { Parser } = await import('./parser');
              const lexer = new Lexer(result);
              const parser = new Parser(lexer.tokenize());
