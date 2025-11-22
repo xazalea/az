@@ -1,6 +1,5 @@
 export class Runtime {
     private memory: WebAssembly.Memory;
-    private instance: WebAssembly.Instance | null = null;
     private container: HTMLElement | null = null;
 
     constructor(containerId: string) {
@@ -21,7 +20,6 @@ export class Runtime {
         };
 
         const { instance } = await WebAssembly.instantiate(wasmBytes, importObject);
-        this.instance = instance;
 
         // @ts-ignore: Exports typing
         const main = instance.exports.main as CallableFunction;
