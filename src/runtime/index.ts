@@ -21,10 +21,11 @@ export class Runtime {
 
         const { instance } = await WebAssembly.instantiate(wasmBytes, importObject);
 
-        // @ts-ignore: Exports typing
+        // Use explicit any cast to bypass TS check on exports
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const main = (instance.exports as any).main as CallableFunction;
-        if (main) {
+        
+        if (typeof main === 'function') {
             main();
         }
     }
