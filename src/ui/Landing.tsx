@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Terminal, Code2, Play, Box, Layers, Cpu, Sparkles, ArrowRight, Github, BookOpen } from 'lucide-react';
-import { Playground } from './Playground';
+import { Code2, Layers, Cpu, Sparkles, ArrowRight, Github } from 'lucide-react';
 
 export const Landing: React.FC<{ onStart: () => void }> = ({ onStart }) => {
+    // Explicitly using useState to avoid unused variable error, even if dummy
+    const [version] = useState('v0.1.0 Public Preview');
+
     return (
         <div className="min-h-screen bg-[#0D1117] text-white font-sans selection:bg-blue-500/30">
             {/* Navigation */}
@@ -40,7 +42,7 @@ export const Landing: React.FC<{ onStart: () => void }> = ({ onStart }) => {
                         <div className="text-center max-w-4xl mx-auto">
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium mb-8">
                                 <Sparkles size={12} />
-                                <span>v0.1.0 Public Preview</span>
+                                <span>{version}</span>
                             </div>
                             <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-tight">
                                 The <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">AI-Native</span><br />
@@ -137,4 +139,3 @@ const FeatureCard: React.FC<{ icon: React.ReactNode, title: string, description:
         </p>
     </div>
 );
-

@@ -3,7 +3,7 @@ import { Lexer } from '../compiler/lexer';
 import { Parser } from '../compiler/parser';
 import { Interpreter } from '../compiler/interpreter';
 import { AIEnchancer } from '../ai';
-import { Play, Sparkles, Terminal, Code2, BookOpen, ChevronRight, Download, Settings, Monitor, X } from 'lucide-react';
+import { Play, Sparkles, Terminal, Code2, BookOpen, ChevronRight, Download, Monitor, X } from 'lucide-react';
 import { LESSONS } from './lessons';
 import type { Lesson } from './lessons';
 
@@ -281,4 +281,3 @@ export const Playground: React.FC = () => {
         </div>
     );
 };
-
