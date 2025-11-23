@@ -1,5 +1,5 @@
 import { TokenType } from './types';
-import type { Token, Program, Statement, Expression, FunctionDeclaration, VariableDeclaration, IfStatement, WhileStatement, ReturnStatement, ExpressionStatement, AIStatement, GenerateStatement, AIOptimizeStatement, ImportStatement, MacroDefinition, AgentDefinition, RAGStatement, InspectStatement } from './types';
+import type { Token, Program, Statement, Expression, FunctionDeclaration, VariableDeclaration, IfStatement, WhileStatement, ReturnStatement, ExpressionStatement, AIStatement, GenerateStatement, AIOptimizeStatement } from './types';
 
 export class Parser {
     private tokens: Token[];
@@ -35,11 +35,6 @@ export class Parser {
             if (this.match(TokenType.GENERATE)) return this.parseGenerate();
             if (this.match(TokenType.AI_OPTIMIZE)) return this.parseAIOptimize();
             if (this.match(TokenType.AI)) return this.parseAI();
-            if (this.match(TokenType.IMPORT)) return this.parseImport();
-            if (this.match(TokenType.MACRO)) return this.parseMacro();
-            if (this.match(TokenType.AGENT)) return this.parseAgent();
-            if (this.match(TokenType.RAG)) return this.parseRAG();
-            if (this.match(TokenType.INSPECT)) return this.parseInspect();
 
             return this.parseExpressionStatement();
         } catch (e) {
@@ -187,52 +182,6 @@ export class Parser {
         }
 
         return { type: 'AIStatement', instruction, body };
-    }
-
-    private parseImport(): ImportStatement {
-        let isAI = false;
-        if (this.match(TokenType.AI)) {
-            isAI = true;
-        }
-        const moduleName = this.consume(TokenType.STRING, "Expected module name string").value;
-        return { type: 'ImportStatement', moduleName, isAI };
-    }
-
-    private parseMacro(): MacroDefinition {
-        const name = this.consume(TokenType.IDENTIFIER, "Expected macro name").value;
-        this.consume(TokenType.LPAREN, "Expected '('");
-        const params: string[] = [];
-        if (!this.check(TokenType.RPAREN)) {
-            do {
-                params.push(this.consume(TokenType.IDENTIFIER, "Expected parameter name").value);
-            } while (this.match(TokenType.COMMA));
-        }
-        this.consume(TokenType.RPAREN, "Expected ')'");
-        this.consume(TokenType.COLON, "Expected ':'");
-        const body = this.parseBlock();
-        return { type: 'MacroDefinition', name, params, body };
-    }
-
-    private parseAgent(): AgentDefinition {
-        const name = this.consume(TokenType.IDENTIFIER, "Expected agent name").value;
-        this.consume(TokenType.COLON, "Expected ':'");
-        const body = this.parseBlock();
-        return { type: 'AgentDefinition', name, body };
-    }
-
-    private parseRAG(): RAGStatement {
-        // rag "query"
-        // or rag search("query") - simplified to just a string literal or expression?
-        // Let's support `rag "query string"` for now.
-        const query = this.consume(TokenType.STRING, "Expected query string").value;
-        return { type: 'RAGStatement', query };
-    }
-
-    private parseInspect(): InspectStatement {
-        this.consume(TokenType.LPAREN, "Expected '('");
-        const target = this.parseExpression();
-        this.consume(TokenType.RPAREN, "Expected ')'");
-        return { type: 'InspectStatement', target };
     }
 
     private parseBlock(): Statement[] {

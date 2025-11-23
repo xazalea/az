@@ -1,0 +1,36 @@
+{
+  "name": "azalea-vscode",
+  "displayName": "Azalea AI Language",
+  "description": "Official VS Code support for Azalea - The AI-Native Programming Language.",
+  "version": "1.0.0",
+  "publisher": "azalea-lang",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Machine Learning"
+  ],
+  "icon": "icon.png",
+  "contributes": {
+    "languages": [{
+      "id": "azalea",
+      "aliases": ["Azalea", "azae"],
+      "extensions": [".az"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "azalea",
+      "scopeName": "source.azalea",
+      "path": "./syntaxes/azalea.tmLanguage.json"
+    }],
+    "themes": [
+        {
+            "label": "Azalea Sapphire Mist",
+            "uiTheme": "vs-dark",
+            "path": "./themes/sapphire-mist-color-theme.json"
+        }
+    ]
+  }
+}
+

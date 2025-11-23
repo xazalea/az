@@ -156,8 +156,6 @@ export class Lexer {
             case '>': this.addToken(TokenType.GREATER_THAN, '>'); this.advance(); break;
             case '(': this.addToken(TokenType.LPAREN, '('); this.advance(); break;
             case ')': this.addToken(TokenType.RPAREN, ')'); this.advance(); break;
-            case '{': this.addToken(TokenType.LBRACE, '{'); this.advance(); break;
-            case '}': this.addToken(TokenType.RBRACE, '}'); this.advance(); break;
             case ',': this.addToken(TokenType.COMMA, ','); this.advance(); break;
             case ':': this.addToken(TokenType.COLON, ':'); this.advance(); break;
             default:
@@ -225,11 +223,6 @@ export class Lexer {
             case 'description': this.addToken(TokenType.DESCRIPTION, value); break;
             case 'ai.optimize': this.addToken(TokenType.AI_OPTIMIZE, value); break;
             case 'ai': this.addToken(TokenType.AI, value); break;
-            case 'import': this.addToken(TokenType.IMPORT, value); break;
-            case 'macro': this.addToken(TokenType.MACRO, value); break;
-            case 'agent': this.addToken(TokenType.AGENT, value); break;
-            case 'rag': this.addToken(TokenType.RAG, value); break;
-            case 'inspect': this.addToken(TokenType.INSPECT, value); break;
             default: this.addToken(TokenType.IDENTIFIER, value); break;
         }
     }

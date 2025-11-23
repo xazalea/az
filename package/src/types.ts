@@ -10,11 +10,6 @@ export const TokenType = {
     BOX: 'BOX', // UI Primitive
     TEXT: 'TEXT', // UI Primitive
     BUTTON: 'BUTTON', // UI Primitive
-    IMPORT: 'IMPORT',
-    MACRO: 'MACRO',
-    AGENT: 'AGENT',
-    RAG: 'RAG',
-    INSPECT: 'INSPECT',
 
     // Identifiers & Literals
     IDENTIFIER: 'IDENTIFIER',
@@ -37,8 +32,6 @@ export const TokenType = {
     RPAREN: 'RPAREN',
     COMMA: 'COMMA',
     COLON: 'COLON', // Used for blocks: if x: ...
-    LBRACE: 'LBRACE', // Added for agent/macro blocks if needed, though we use indent
-    RBRACE: 'RBRACE',
 
     // Indentation / Structure
     NEWLINE: 'NEWLINE',
@@ -82,12 +75,7 @@ export type Statement =
     | ExpressionStatement
     | GenerateStatement
     | AIOptimizeStatement
-    | AIStatement
-    | ImportStatement
-    | MacroDefinition
-    | AgentDefinition
-    | RAGStatement
-    | InspectStatement;
+    | AIStatement;
 
 export interface AIStatement extends ASTNode {
     type: 'AIStatement';
@@ -179,35 +167,4 @@ export interface UIPrimitive extends ASTNode {
     elementType: 'box' | 'text' | 'button';
     props: Record<string, Expression>;
     children: Expression[]; // UI elements can nest
-}
-
-// New AI Primitives
-
-export interface ImportStatement extends ASTNode {
-    type: 'ImportStatement';
-    moduleName: string;
-    isAI: boolean; // import ai "lib"
-}
-
-export interface MacroDefinition extends ASTNode {
-    type: 'MacroDefinition';
-    name: string;
-    params: string[];
-    body: Statement[];
-}
-
-export interface AgentDefinition extends ASTNode {
-    type: 'AgentDefinition';
-    name: string;
-    body: Statement[];
-}
-
-export interface RAGStatement extends ASTNode {
-    type: 'RAGStatement';
-    query: string;
-}
-
-export interface InspectStatement extends ASTNode {
-    type: 'InspectStatement';
-    target: Expression;
 }

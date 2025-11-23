@@ -119,30 +119,4 @@ export class AIEnchancer {
     public learnPreference(key: string, value: any) {
         this.userPreferences[key] = value;
     }
-
-    // --- New AI Native Capabilities ---
-
-    public async generateModule(moduleName: string): Promise<string> {
-        return this.adaptiveGenerate(`Generate a purely functional module named "${moduleName}" in Azalea syntax. Include exported functions.`, 'coding');
-    }
-
-    public async ragSearch(query: string, context: string[]): Promise<string> {
-        // In a real implementation, this would use vector embeddings.
-        // Here we use the LLM to "search" the provided context strings.
-        const contextBlock = context.join('\n');
-        return this.adaptiveGenerate(`Given this context:\n${contextBlock}\n\nAnswer this query based on the context: ${query}`, 'general');
-    }
-
-    public async inspectVariable(value: any): Promise<string> {
-        return this.adaptiveGenerate(`Explain what this data structure represents and suggest how to use it:\n${JSON.stringify(value)}`, 'general');
-    }
-
-    public async runAgentStep(agentName: string, history: string[]): Promise<string> {
-        const historyBlock = history.join('\n');
-        return this.adaptiveGenerate(`You are an autonomous agent named ${agentName}.
-        History:
-        ${historyBlock}
-        
-        Decide the next action or thought.`, 'general');
-    }
 }

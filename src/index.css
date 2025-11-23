@@ -1,1 +1,32 @@
 @import "tailwindcss";
+
+:root {
+  --color-az-bg: #424658;
+  --color-az-surface: #2a2e3b; /* Darker variant for cards */
+  --color-az-primary: #ffc5cd; /* User requested main color */
+  --color-az-accent: #6C739C; /* Sapphire */
+  --color-az-text: #F0DAD5;
+  --color-az-muted: #BABBB1;
+}
+
+body {
+  background-color: var(--color-az-bg);
+  color: var(--color-az-text);
+  font-family: 'Inter', sans-serif;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-az-accent);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-az-primary);
+}

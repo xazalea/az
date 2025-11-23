@@ -1,0 +1,68 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/json.json",
+  "name": "Azalea",
+  "patterns": [
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#functions"
+    },
+    {
+      "include": "#ai"
+    }
+  ],
+  "repository": {
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.azalea",
+          "match": "\\b(if|else|while|return|fn|var|generate)\\b"
+        },
+        {
+          "name": "support.function.azalea",
+          "match": "\\b(box|text|button)\\b"
+        }
+      ]
+    },
+    "strings": {
+      "name": "string.quoted.double.azalea",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.azalea",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "comments": {
+      "name": "comment.line.number-sign.azalea",
+      "match": "#.*$"
+    },
+    "functions": {
+      "match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*(?=\\()",
+      "name": "entity.name.function.azalea"
+    },
+    "ai": {
+      "patterns": [
+        {
+          "name": "keyword.other.ai.azalea",
+          "match": "\\bai\\b"
+        },
+        {
+          "name": "entity.name.section.ai-instruction.azalea",
+          "match": "(?<=ai\\s+)\"[^\"]*\""
+        }
+      ]
+    }
+  },
+  "scopeName": "source.azalea"
+}
+

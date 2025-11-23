@@ -1,11 +1,9 @@
-import type { Program, Statement, Expression, BinaryExpression, Literal, Identifier, CallExpression, VariableDeclaration, FunctionDeclaration, IfStatement, WhileStatement, ReturnStatement, ExpressionStatement, UIPrimitive, AIStatement, ImportStatement, MacroDefinition, AgentDefinition, RAGStatement, InspectStatement } from './types';
-import { AIEnchancer } from '../ai';
+import type { Program, Statement, Expression, BinaryExpression, Literal, Identifier, CallExpression, VariableDeclaration, FunctionDeclaration, IfStatement, WhileStatement, ReturnStatement, ExpressionStatement, UIPrimitive, AIStatement } from './types';
+import { AIEnchancer } from './ai';
 
 export class Interpreter {
   private globals: Record<string, any> = {};
   private functions: Record<string, FunctionDeclaration> = {};
-  private macros: Record<string, MacroDefinition> = {};
-  private agents: Record<string, AgentDefinition> = {};
   private output: string[] = [];
   private container: HTMLElement | null = null;
   private ai: AIEnchancer;
@@ -41,6 +39,10 @@ export class Interpreter {
     this.globals['ai_ask'] = async (question: string) => {
        // AI Standard Library Call
        this.output.push(`[AI Asking]: ${question}`);
+       // Assuming 'process' or a new method 'chat' would be appropriate here.
+       // Since 'process' handles instructions on code, let's use it or add a new one.
+       // Reusing process for general query for now or assume a chat method exists.
+       // Let's map it to process with empty context for general QA.
        const answer = await this.ai.process(question, ""); 
        return answer;
     };
@@ -64,22 +66,11 @@ export class Interpreter {
   public async evaluate(program: Program) {
     this.clearOutput();
 
-    // 1. Register functions and macros
+    // 1. Register functions
     for (const stmt of program.body) {
       if (stmt.type === 'FunctionDeclaration') {
         const func = stmt as FunctionDeclaration;
         this.functions[func.name] = func;
-      } else if (stmt.type === 'MacroDefinition') {
-        const macro = stmt as MacroDefinition;
-        this.macros[macro.name] = macro;
-      } else if (stmt.type === 'AgentDefinition') {
-        const agent = stmt as AgentDefinition;
-        this.agents[agent.name] = agent;
-        // Auto-start agent? Or wait for call? Let's auto-start for the prototype "agent loop" feel
-        // Actually, usually agents are invoked. Let's wait for explicit invoke or just run primitives.
-        // But user might expect `agent X: ...` to run.
-        // Let's execute it immediately for now as a demo of "autonomous loop"
-        await this.runAgent(agent);
       }
     }
 
@@ -90,7 +81,7 @@ export class Interpreter {
         } else {
           // Scripting mode: execute top-level statements
           for (const stmt of program.body) {
-            if (stmt.type !== 'FunctionDeclaration' && stmt.type !== 'MacroDefinition' && stmt.type !== 'AgentDefinition') {
+            if (stmt.type !== 'FunctionDeclaration') {
               await this.executeStatement(stmt, this.globals);
             }
           }
@@ -102,28 +93,10 @@ export class Interpreter {
         this.output.push(`[AI Debugger] Analyzing error...`);
         
         // Ask AI to explain/fix
+        // We need the context of where it failed.
         const fix = await this.ai.process(`Fix this error: ${errorMsg}`, "");
         this.output.push(`[AI Suggestion]:\n${fix}`);
     }
-  }
-
-  private async runAgent(agent: AgentDefinition) {
-      this.globals['print'](`[Agent ${agent.name}] Starting autonomous loop...`);
-      // Simple loop simulation
-      const steps = 3; 
-      const history: string[] = [];
-      for (let i = 0; i < steps; i++) {
-          const thought = await this.ai.runAgentStep(agent.name, history);
-          this.globals['print'](`[Agent ${agent.name}]: ${thought}`);
-          history.push(thought);
-          
-          // Execute body statements as "actions" context
-          for (const stmt of agent.body) {
-              // We might evaluate them to define the agent's capabilities
-              // For now, just treat body as setup or one-off actions
-              await this.executeStatement(stmt, this.globals);
-          }
-      }
   }
 
   private async callFunction(name: string, args: any[]): Promise<any> {
@@ -185,7 +158,8 @@ export class Interpreter {
         const generatedCode = await this.ai.generateFunction(genStmt.name, genStmt.params, genStmt.description);
         this.globals['print'](`[AI] Generated:\n${generatedCode}`);
 
-        // Meta-AI: Runtime Feature Generation
+        // Meta-AI: Runtime Feature Generation (Task 13)
+        // The generated code is parsed and added to runtime.
         // @ts-ignore: Dynamic import inside method
         const { Parser } = await import('./parser');
         // @ts-ignore: Dynamic import inside method
@@ -263,47 +237,6 @@ export class Interpreter {
         }
         break;
 
-      // New AI Native Statements
-      case 'ImportStatement':
-          const impStmt = stmt as ImportStatement;
-          if (impStmt.isAI) {
-              this.globals['print'](`[AI] Auto-Generating Module '${impStmt.moduleName}'...`);
-              const modCode = await this.ai.generateModule(impStmt.moduleName);
-              this.globals['print'](`[AI] Module Generated. Loading...`);
-              
-              // Load generated module
-              // @ts-ignore
-              const { Lexer } = await import('./lexer');
-              // @ts-ignore
-              const { Parser } = await import('./parser');
-              const l = new Lexer(modCode);
-              const p = new Parser(l.tokenize());
-              const prog = p.parse();
-              // Evaluate imports into global scope (namespace merging)
-              await this.evaluate(prog);
-          }
-          break;
-
-      case 'RAGStatement':
-          const ragStmt = stmt as RAGStatement;
-          this.globals['print'](`[RAG] Searching for: "${ragStmt.query}"...`);
-          const answer = await this.ai.ragSearch(ragStmt.query, this.aiContext);
-          this.globals['print'](`[RAG] Answer: ${answer}`);
-          break;
-
-      case 'InspectStatement':
-          const inspectStmt = stmt as InspectStatement;
-          const targetVal = await this.evaluateExpression(inspectStmt.target, scope);
-          this.globals['print'](`[Data Inspector] Analyzing...`);
-          const analysis = await this.ai.inspectVariable(targetVal);
-          this.globals['print'](`[Data Inspector]: ${analysis}`);
-          break;
-          
-      case 'MacroDefinition':
-      case 'AgentDefinition':
-          // Handled in first pass (evaluate function registration), but if they appear in blocks:
-          // TODO: Block-scoped definitions
-          break;
     }
   }
 

@@ -1,0 +1,44 @@
+{
+  "name": "azae",
+  "version": "0.1.0",
+  "description": "The AI-Native Programming Language",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "azae": "./bin/azae.js"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "ai",
+    "language",
+    "compiler",
+    "azalea"
+  ],
+  "author": "Azalea Team",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^11.1.0",
+    "@mlc-ai/web-llm": "^0.2.79"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.11.5"
+  },
+  "contributes": {
+    "languages": [{
+      "id": "azalea",
+      "aliases": ["Azalea", "azae"],
+      "extensions": [".az"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "azalea",
+      "scopeName": "source.azalea",
+      "path": "./syntaxes/azalea.tmLanguage.json"
+    }]
+  }
+}
+
