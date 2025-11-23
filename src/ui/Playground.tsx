@@ -203,6 +203,6 @@ const SidebarIcon: React.FC<{ icon: React.ReactNode, label: string, active: bool
         title={label}
         className={`p-3 rounded-xl transition-all ${active ? 'bg-[#ffc5cd] text-[#424658] shadow-lg shadow-[#ffc5cd]/20' : 'text-[#BABBB1] hover:bg-[#424658] hover:text-white'}`}
     >
-        {React.cloneElement(icon as React.ReactElement, { size: 20 })}
+        {React.cloneElement(icon as any, { size: 20 })}
     </button>
 );

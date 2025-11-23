@@ -129,6 +129,26 @@ export class Interpreter {
   private async callFunction(name: string, args: any[]): Promise<any> {
     const func = this.functions[name];
     if (!func) {
+      const macro = this.macros[name];
+      if (macro) {
+          // Execute macro body with arguments
+          // Macros in this interpreter are treated as inline functions for now.
+          // A real macro system would expand AST, but here we execute the body.
+          const scope = { ...this.globals };
+          macro.params.forEach((param, index) => {
+              scope[param] = args[index];
+          });
+          try {
+              for (const stmt of macro.body) {
+                  await this.executeStatement(stmt, scope);
+              }
+              return; // Macros don't return values in this simple impl, but they could
+          } catch (e: any) {
+               if (e.type === 'RETURN') return e.value;
+               throw e;
+          }
+      }
+
       // Check built-ins/globals
       if (typeof this.globals[name] === 'function') {
         return this.globals[name](...args);

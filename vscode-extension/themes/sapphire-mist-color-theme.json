@@ -1,0 +1,55 @@
+{
+  "name": "Azalea Sapphire Mist",
+  "type": "dark",
+  "colors": {
+    "editor.background": "#424658",
+    "editor.foreground": "#F0DAD5",
+    "editorCursor.foreground": "#ffc5cd",
+    "editor.lineHighlightBackground": "#2a2e3b",
+    "editor.selectionBackground": "#6C739C40",
+    "activityBar.background": "#2a2e3b",
+    "sideBar.background": "#2a2e3b",
+    "statusBar.background": "#6C739C",
+    "statusBar.foreground": "#ffffff"
+  },
+  "tokenColors": [
+    {
+      "name": "Comment",
+      "scope": ["comment", "punctuation.definition.comment"],
+      "settings": {
+        "foreground": "#BABBB1",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Keyword",
+      "scope": ["keyword", "storage.type", "storage.modifier"],
+      "settings": {
+        "foreground": "#ffc5cd",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "String",
+      "scope": ["string"],
+      "settings": {
+        "foreground": "#a3e4d7"
+      }
+    },
+    {
+      "name": "Function",
+      "scope": ["entity.name.function", "support.function"],
+      "settings": {
+        "foreground": "#82aaff"
+      }
+    },
+    {
+      "name": "Variable",
+      "scope": ["variable"],
+      "settings": {
+        "foreground": "#F0DAD5"
+      }
+    }
+  ]
+}
+
