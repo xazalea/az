@@ -17,6 +17,10 @@
     "azalea"
   ],
   "author": "Azalea Team",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xazalea/az"
+  },
   "license": "MIT",
   "dependencies": {
     "chalk": "^5.3.0",

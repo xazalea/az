@@ -28,12 +28,24 @@ const appConfig: AppConfig = {
 };
 
 export class AIEnchancer {
+    private static instance: AIEnchancer;
+
+    public static getInstance(): AIEnchancer {
+        if (!AIEnchancer.instance) {
+            AIEnchancer.instance = new AIEnchancer();
+        }
+        return AIEnchancer.instance;
+    }
+
+    private constructor() {}
+
     private engine: MLCEngine | null = null;
     private currentModelId: string = "";
     private userPreferences: Record<string, any> = {}; 
+    private initPromise: Promise<MLCEngine> | null = null;
 
     // Models Dictionary - Updating to use keys present in prebuiltAppConfig where possible
-    private static MODELS = {
+    public static MODELS = {
         // Judges & Planners
         SUPERVISOR: "Llama-3-8B-Instruct-q4f32_1-MLC",
         
@@ -49,17 +61,31 @@ export class AIEnchancer {
         BEE_CODER: "Llama-3-8B-Instruct-q4f32_1-MLC",
     };
 
+    public async preload() {
+        console.log("[AI] Starting preload...");
+        await this.ensureEngine(AIEnchancer.MODELS.SUPERVISOR);
+    }
+
     private async ensureEngine(modelId: string) {
         if (this.engine && this.currentModelId === modelId) return this.engine;
+
+        // If initialization is already in progress, wait for it
+        if (this.initPromise) {
+             const eng = await this.initPromise;
+             if (this.currentModelId === modelId) return eng;
+             // If the requested model is different, we continue to re-init below
+        }
 
         if (this.engine) {
             console.log(`[AI] Unloading ${this.currentModelId}...`);
             await this.engine.unload(); 
+            this.engine = null;
         }
 
         console.log(`[AI] Loading ${modelId}...`);
         this.currentModelId = modelId;
-        this.engine = await CreateMLCEngine(
+        
+        this.initPromise = CreateMLCEngine(
             modelId,
             {
                 appConfig: appConfig,
@@ -67,6 +93,9 @@ export class AIEnchancer {
                 logLevel: "INFO"
             }
         );
+
+        this.engine = await this.initPromise;
+        this.initPromise = null;
         return this.engine;
     }
 

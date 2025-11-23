@@ -13,7 +13,7 @@ export class Interpreter {
   private aiContext: string[] = []; 
 
   constructor(containerId?: string) {
-    this.ai = new AIEnchancer();
+    this.ai = AIEnchancer.getInstance();
     if (containerId) {
       this.container = document.getElementById(containerId);
     }

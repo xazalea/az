@@ -45,7 +45,8 @@ export const Playground: React.FC = () => {
 
     useEffect(() => {
         interpreterRef.current = new Interpreter('azalea-preview-root');
-        aiRef.current = new AIEnchancer();
+        // Use singleton instance
+        aiRef.current = AIEnchancer.getInstance();
         return () => { interpreterRef.current = null; aiRef.current = null; };
     }, []);
 
@@ -95,9 +96,7 @@ export const Playground: React.FC = () => {
             <header className="h-14 border-b border-[#6C739C]/20 flex items-center px-4 justify-between bg-[#2a2e3b] shrink-0 shadow-md z-20">
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
-                         <div className="w-6 h-6 bg-gradient-to-br from-[#ffc5cd] to-[#6C739C] rounded-md flex items-center justify-center shadow-lg shadow-[#ffc5cd]/20">
-                            <span className="font-bold text-[#424658] text-xs">Az</span>
-                        </div>
+                         <img src="/logo.png" alt="Azalea Logo" className="w-6 h-6 rounded-md shadow-lg shadow-[#ffc5cd]/20" />
                         <span className="font-bold text-white">Playground</span>
                     </div>
                 </div>
