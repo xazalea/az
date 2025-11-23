@@ -147,9 +147,9 @@ export const Landing: React.FC<{ onStart: () => void }> = ({ onStart }) => {
                             Lightweight CLI toolchain. Compile, run, and manage Azalea projects from any terminal.
                         </p>
                         <div className="bg-[#1e212b] p-4 rounded-lg font-mono text-sm text-[#F0DAD5] mb-6 border border-[#6C739C]/10 relative z-10">
-                            > npm install -g azae<br/>
-                            > azae init my-project<br/>
-                            > azae run main.az
+                            &gt; npm install -g azae<br/>
+                            &gt; azae init my-project<br/>
+                            &gt; azae run main.az
                         </div>
                         <button className="w-full py-3 bg-[#424658] hover:bg-[#6C739C] rounded-lg text-white font-medium transition-colors relative z-10">
                             View on NPM
