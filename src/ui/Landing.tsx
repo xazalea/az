@@ -131,8 +131,8 @@ export const Landing: React.FC<{ onStart: () => void }> = ({ onStart }) => {
                             <li className="flex items-center gap-2"><Sparkles size={14} className="text-[#ffc5cd]"/> Semantic Syntax Highlighting</li>
                             <li className="flex items-center gap-2"><Sparkles size={14} className="text-[#ffc5cd]"/> Inline Agent Definitions</li>
                         </ul>
-                        <a href="/azalea.vsix" download className="block w-full py-3 bg-[#424658] hover:bg-[#6C739C] rounded-lg text-white font-medium transition-colors relative z-10 text-center">
-                            Download VSIX
+                        <a href="https://marketplace.visualstudio.com/items?itemName=RohanSalem.azalea-vscode" target="_blank" rel="noreferrer" className="block w-full py-3 bg-[#424658] hover:bg-[#6C739C] rounded-lg text-white font-medium transition-colors relative z-10 text-center">
+                            Install from Marketplace
                         </a>
                     </div>
 

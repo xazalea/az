@@ -2,15 +2,56 @@ import { CreateMLCEngine, MLCEngine, type AppConfig, prebuiltAppConfig } from "@
 
 // Merge our custom models with the prebuilt list to ensure standard models work correctly
 const CUSTOM_MODELS = [
-    // --- Coding Specialists ---
     {
-        model_id: "gemma-3-270m-coder",
-        model_lib_url: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-build/gemma-2-2b-it-q4f32_1-ctx4k_cs1k-webgpu.wasm",
+        model: "https://huggingface.co/afrideva/llama2_xs_460M_uncensored-GGUF",
+        model_id: "llama2-xs-460m",
+        model_lib: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-build/Llama-2-7b-chat-hf-q4f32_1-ctx4k_cs1k-webgpu.wasm", // Attempting to use generic Llama 2 lib
+        vram_required_MB: 1024,
+        low_resource_required: true,
+    },
+    {
+        model: "https://huggingface.co/unsloth/Qwen3-0.6B-GGUF",
+        model_id: "qwen3-0.6b",
+        model_lib: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-build/Qwen2-0.5B-Instruct-q4f32_1-ctx4k_cs1k-webgpu.wasm", // Closest architecture lib
+        vram_required_MB: 1024,
+        low_resource_required: true,
+    },
+    {
+        model: "https://huggingface.co/jantxu/nano-llama",
+        model_id: "nano-llama",
+        model_lib: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-build/Llama-2-7b-chat-hf-q4f32_1-ctx4k_cs1k-webgpu.wasm",
         vram_required_MB: 512,
         low_resource_required: true,
     },
-    // ... other custom models ...
-    // For now, relying on prebuilt config for standard models to ensure stability
+    {
+        model: "https://huggingface.co/bartowski/SmolLM2-135M-Instruct-GGUF",
+        model_id: "smollm2-135m",
+        model_lib: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-build/Llama-3-8B-Instruct-q4f32_1-ctx4k_cs1k-webgpu.wasm", // SmolLM is typically Llama architecture
+        vram_required_MB: 256,
+        low_resource_required: true,
+    },
+    {
+        model: "https://huggingface.co/afrideva/TinyMistral-248M-GGUF",
+        model_id: "tinymistral-248m",
+        model_lib: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-build/Mistral-7B-Instruct-v0.2-q4f32_1-ctx4k_cs1k-webgpu.wasm",
+        vram_required_MB: 512,
+        low_resource_required: true,
+    },
+    {
+        model: "https://huggingface.co/afrideva/beecoder-220M-python-GGUF",
+        model_id: "beecoder-220m",
+        model_lib: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-build/Llama-2-7b-chat-hf-q4f32_1-ctx4k_cs1k-webgpu.wasm",
+        vram_required_MB: 512,
+        low_resource_required: true,
+    },
+    {
+        model: "https://huggingface.co/afrideva/zephyr-220m-sft-full-GGUF",
+        model_id: "zephyr-220m",
+        model_lib: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-build/Mistral-7B-Instruct-v0.2-q4f32_1-ctx4k_cs1k-webgpu.wasm", // Zephyr is Mistral-based
+        vram_required_MB: 512,
+        low_resource_required: true,
+    }
+    // Note: Image (FLUX) and Audio (TTS) models are excluded from LLM engine config to prevent compatibility errors.
 ];
 
 const appConfig: AppConfig = {
@@ -18,9 +59,9 @@ const appConfig: AppConfig = {
     model_list: [
         ...prebuiltAppConfig.model_list, // Use the official list as base
         ...CUSTOM_MODELS.map(m => ({
-            model: "https://huggingface.co/" + m.model_id,
+            model: m.model,
             model_id: m.model_id,
-            model_lib: m.model_lib_url,
+            model_lib: m.model_lib,
             vram_required_MB: m.vram_required_MB,
             low_resource_required: m.low_resource_required,
         }))
@@ -47,18 +88,19 @@ export class AIEnchancer {
     // Models Dictionary - Updating to use keys present in prebuiltAppConfig where possible
     public static MODELS = {
         // Judges & Planners
-        SUPERVISOR: "Llama-3-8B-Instruct-q4f32_1-MLC",
+        // Using user-specified default tiny model
+        SUPERVISOR: "llama2-xs-460m", 
         
         // Specialized Coders
-        GEMMA_CODER: "gemma-2-2b-it-q4f32_1-MLC", // Switched to standard model for stability
-        SMOL_LM2: "Llama-3-8B-Instruct-q4f32_1-MLC", // Fallback for now
+        GEMMA_CODER: "qwen3-0.6b", // Using Qwen3 as coding specialist
+        SMOL_LM2: "smollm2-135m",
         
         // Others will use custom definitions if they work, or fallback
-        QWEN3_ZERO: "Llama-3-8B-Instruct-q4f32_1-MLC", // Fallback until custom WASM is fixed
-        NER: "Llama-3-8B-Instruct-q4f32_1-MLC",
-        SUMMARIZER_PHI: "Phi-3.5-mini-instruct-q4f16_1-MLC",
-        NT_JAVA: "Llama-3-8B-Instruct-q4f32_1-MLC",
-        BEE_CODER: "Llama-3-8B-Instruct-q4f32_1-MLC",
+        QWEN3_ZERO: "qwen3-0.6b",
+        NER: "tinymistral-248m",
+        SUMMARIZER_PHI: "zephyr-220m",
+        NT_JAVA: "beecoder-220m",
+        BEE_CODER: "beecoder-220m",
     };
 
     public async preload() {
