@@ -3,7 +3,7 @@ import { Lexer } from '../compiler/lexer';
 import { Parser } from '../compiler/parser';
 import { Interpreter } from '../compiler/interpreter';
 import { AIEnchancer } from '../ai';
-import { Play, Sparkles, Terminal, Code2, BookOpen, Database, Box as BoxIcon, Monitor, X } from 'lucide-react';
+import { Play, Terminal, Code2, BookOpen, Database, Box as BoxIcon, Monitor, X } from 'lucide-react';
 import { LESSONS } from './lessons';
 import type { Lesson } from './lessons';
 
@@ -35,19 +35,17 @@ const DEFAULT_CODE = `fn main():
 export const Playground: React.FC = () => {
     const [code, setCode] = useState(DEFAULT_CODE);
     const [output, setOutput] = useState<string[]>([]);
-    const [isEnhancing, setIsEnhancing] = useState(false);
     const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
     const [activeTab, setActiveTab] = useState<'files' | 'lessons' | 'plugins' | 'inspector'>('files');
     const [previewKey, setPreviewKey] = useState(0); 
 
     const interpreterRef = useRef<Interpreter | null>(null);
-    const aiRef = useRef<AIEnchancer | null>(null);
 
     useEffect(() => {
         interpreterRef.current = new Interpreter('azalea-preview-root');
-        // Use singleton instance
-        aiRef.current = AIEnchancer.getInstance();
-        return () => { interpreterRef.current = null; aiRef.current = null; };
+        // Ensure AI is preloaded
+        AIEnchancer.getInstance().preload();
+        return () => { interpreterRef.current = null; };
     }, []);
 
     const handleRun = async () => {
@@ -65,20 +63,6 @@ export const Playground: React.FC = () => {
             setOutput([...interpreterRef.current.getOutput()]);
         } catch (e: any) {
             setOutput(prev => [...prev, `Error: ${e.message || e}`]);
-        }
-    };
-
-    const handleEnhance = async () => {
-        if (!aiRef.current) return;
-        setIsEnhancing(true);
-        try {
-            const enhanced = await aiRef.current.enhance(code);
-            setCode(enhanced);
-            setOutput(prev => [...prev, "[System] AI optimization applied."]);
-        } catch (e: any) {
-            setOutput(prev => [...prev, `[System] AI Error: ${e.message}`]);
-        } finally {
-            setIsEnhancing(false);
         }
     };
 
@@ -102,9 +86,6 @@ export const Playground: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <button onClick={handleEnhance} disabled={isEnhancing} className="flex items-center gap-2 px-3 py-1.5 text-[#ffc5cd] bg-[#ffc5cd]/10 border border-[#ffc5cd]/30 hover:bg-[#ffc5cd]/20 rounded-md transition-all text-xs font-medium">
-                        <Sparkles size={14} /> {isEnhancing ? 'Optimizing...' : 'AI Enhance'}
-                    </button>
                     <button onClick={handleRun} className="flex items-center gap-2 px-4 py-1.5 bg-[#6C739C] hover:bg-[#ffc5cd] hover:text-[#424658] text-white rounded-md transition-all shadow-lg shadow-[#6C739C]/20 font-bold text-xs">
                         <Play size={14} fill="currentColor" /> Run
                     </button>
