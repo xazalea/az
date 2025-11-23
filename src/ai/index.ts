@@ -73,7 +73,8 @@ export class AIEnchancer {
     /**
      * ADAPTIVE ORCHESTRATOR
      */
-    private async adaptiveGenerate(prompt: string, contextType: 'coding' | 'creative' | 'general'): Promise<string> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    private async adaptiveGenerate(prompt: string, _contextType: 'coding' | 'creative' | 'general'): Promise<string> {
         // Simplified Orchestrator using stable models
         // For now, we'll use Llama-3-8B for most tasks to ensure it works
         // as the custom WASM URLs were invalid.

@@ -3,7 +3,7 @@ import { Lexer } from '../compiler/lexer';
 import { Parser } from '../compiler/parser';
 import { Interpreter } from '../compiler/interpreter';
 import { AIEnchancer } from '../ai';
-import { Play, Sparkles, Terminal, Code2, BookOpen, ChevronRight, Download, Monitor, X, Database, Box as BoxIcon } from 'lucide-react';
+import { Play, Sparkles, Terminal, Code2, BookOpen, Database, Box as BoxIcon, Monitor, X } from 'lucide-react';
 import { LESSONS } from './lessons';
 import type { Lesson } from './lessons';
 
@@ -79,12 +79,6 @@ export const Playground: React.FC = () => {
         } finally {
             setIsEnhancing(false);
         }
-    };
-
-    const handleExportCpp = async () => {
-        // (Same export logic)
-        // Simplified for brevity in this step, but keeping functional structure
-        setOutput(prev => [...prev, "[System] Exporting..."]);
     };
 
     const loadLesson = (lesson: Lesson) => {
