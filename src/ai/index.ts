@@ -198,6 +198,18 @@ Rules:
         );
     }
 
+    public async optimizeBlock(code: string, onUpdate?: (partial: string) => void): Promise<string> {
+        let buffer = "";
+        return this.streamGenerate(
+            `Optimize this Azalea code block:\n\n${code}\n\nReturn ONLY the optimized code.`,
+            (delta) => {
+                buffer += delta;
+                if (onUpdate) onUpdate(buffer);
+            },
+            'coding'
+        );
+    }
+
     public async process(instruction: string, contextCode: string, onUpdate?: (partial: string) => void): Promise<string> {
         let buffer = "";
         return this.streamGenerate(
