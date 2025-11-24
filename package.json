@@ -7,10 +7,11 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "ai:setup": "npm install concurrently && (cd external/AIClient-2-API && npm install) && (cd external/deepseek-free-api && npm install && npm run build) && (cd external/qwen-free-api && npm install && npm run build) && (cd external/browserpod-meta && npm install)",
+    "ai:server": "npx concurrently \"cd external/AIClient-2-API && node src/api-server.js --port 3000 --model-provider claude-kiro-oauth\" \"cd external/deepseek-free-api && node dist/index.js --port 3001\" \"cd external/qwen-free-api && node dist/index.js --port 3002\""
   },
   "dependencies": {
-    "@mlc-ai/web-llm": "^0.2.79",
     "lucide-react": "^0.554.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

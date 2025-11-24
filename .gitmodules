@@ -1,0 +1,12 @@
+[submodule "external/AIClient-2-API"]
+	path = external/AIClient-2-API
+	url = https://github.com/justlovemaki/AIClient-2-API
+[submodule "external/deepseek-free-api"]
+	path = external/deepseek-free-api
+	url = https://github.com/LLM-Red-Team/deepseek-free-api
+[submodule "external/qwen-free-api"]
+	path = external/qwen-free-api
+	url = https://github.com/LLM-Red-Team/qwen-free-api
+[submodule "external/browserpod-meta"]
+	path = external/browserpod-meta
+	url = https://github.com/leaningtech/browserpod-meta

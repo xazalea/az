@@ -1,81 +1,17 @@
-import { CreateMLCEngine, MLCEngine, type AppConfig, prebuiltAppConfig, type InitProgressCallback } from "@mlc-ai/web-llm";
+// AI Enhancer using Local AI Proxy (BrowserPod)
+// Integrates AIClient-2-API, DeepSeek-Free-API, and Qwen-Free-API via in-browser virtualization
 
-// Define the ultra-lightweight models requested by the user
-// Default model is the 460M Llama2 XS
-const PRIMARY_MODEL_ID = "llama2-xs-460m";
-
-const CUSTOM_MODELS = [
-    {
-        model: "https://huggingface.co/afrideva/llama2_xs_460M_uncensored-GGUF",
-        model_id: "llama2-xs-460m",
-        model_lib: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-build/Llama-2-7b-chat-hf-q4f32_1-ctx4k_cs1k-webgpu.wasm", 
-        vram_required_MB: 512,
-        low_resource_required: true,
-    },
-    {
-        model: "https://huggingface.co/LiquidAI/LFM2-350M-GGUF",
-        model_id: "lfm2-350m",
-        model_lib: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-build/Llama-2-7b-chat-hf-q4f32_1-ctx4k_cs1k-webgpu.wasm", // Attempting generic Llama lib
-        vram_required_MB: 512,
-        low_resource_required: true,
-    },
-    {
-        model: "https://huggingface.co/unsloth/Qwen3-0.6B-GGUF",
-        model_id: "qwen3-0.6b",
-        model_lib: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-build/Qwen2-0.5B-Instruct-q4f32_1-ctx4k_cs1k-webgpu.wasm",
-        vram_required_MB: 512,
-        low_resource_required: true,
-    },
-    {
-        model: "https://huggingface.co/jantxu/nano-llama",
-        model_id: "nano-llama",
-        model_lib: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-build/Llama-2-7b-chat-hf-q4f32_1-ctx4k_cs1k-webgpu.wasm",
-        vram_required_MB: 256,
-        low_resource_required: true,
-    },
-    {
-        model: "https://huggingface.co/bartowski/SmolLM2-135M-Instruct-GGUF",
-        model_id: "smollm2-135m",
-        model_lib: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-build/Llama-3-8B-Instruct-q4f32_1-ctx4k_cs1k-webgpu.wasm", 
-        vram_required_MB: 256,
-        low_resource_required: true,
-    },
-    {
-        model: "https://huggingface.co/afrideva/TinyMistral-248M-GGUF",
-        model_id: "tinymistral-248m",
-        model_lib: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-build/Mistral-7B-Instruct-v0.2-q4f32_1-ctx4k_cs1k-webgpu.wasm",
-        vram_required_MB: 512,
-        low_resource_required: true,
-    },
-    {
-        model: "https://huggingface.co/afrideva/beecoder-220M-python-GGUF",
-        model_id: "beecoder-220m",
-        model_lib: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-build/Llama-2-7b-chat-hf-q4f32_1-ctx4k_cs1k-webgpu.wasm",
-        vram_required_MB: 512,
-        low_resource_required: true,
-    },
-    {
-        model: "https://huggingface.co/afrideva/zephyr-220m-sft-full-GGUF",
-        model_id: "zephyr-220m",
-        model_lib: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-build/Mistral-7B-Instruct-v0.2-q4f32_1-ctx4k_cs1k-webgpu.wasm",
-        vram_required_MB: 512,
-        low_resource_required: true,
-    },
-    // Note: Non-LLM models (FLUX, TTS, etc.) are excluded from this config as WebLLM is strictly for text generation LLMs.
-    // To support Image/Audio generation, we would need a different inference engine (e.g. Transformers.js or specialized WASM).
-];
-
-const appConfig: AppConfig = {
-    useIndexedDBCache: true,
-    model_list: [
-        ...CUSTOM_MODELS,
-        // Include prebuilts as fallback
-        ...prebuiltAppConfig.model_list.filter(m => m.model_id !== PRIMARY_MODEL_ID)
-    ]
-};
+export type AIProvider = 'claude' | 'deepseek' | 'qwen';
 
 export class AIEnchancer {
     private static instance: AIEnchancer;
+    
+    // Dynamic URLs from BrowserPod Portals
+    private proxyUrls: Record<AIProvider, string | null> = {
+        claude: null,
+        deepseek: null,
+        qwen: null
+    };
 
     public static getInstance(): AIEnchancer {
         if (!AIEnchancer.instance) {
@@ -84,42 +20,24 @@ export class AIEnchancer {
         return AIEnchancer.instance;
     }
 
-    private constructor() {
-        // Eagerly load the model to ensure instant response when user clicks
-        this.preload();
-    }
+    private constructor() {}
 
-    private engine: MLCEngine | null = null;
-    private currentModelId: string = PRIMARY_MODEL_ID;
-    private initPromise: Promise<MLCEngine> | null = null;
     private userPreferences: Record<string, any> = {};
+    private currentProvider: AIProvider = 'claude'; // Default
+
+    public setProvider(provider: AIProvider) {
+        this.currentProvider = provider;
+        console.log(`[AI] Switched provider to ${provider}`);
+    }
+    
+    public updateProxyUrls(urls: { claude: string | null, deepseek: string | null, qwen: string | null }) {
+        this.proxyUrls = urls;
+        console.log("[AI] Updated Proxy URLs:", urls);
+    }
 
     public async preload() {
-        if (this.engine || this.initPromise) return;
-        console.log("[AI] Preloading lightweight model...");
-        await this.ensureEngine();
-    }
-
-    private async ensureEngine(onProgress?: InitProgressCallback) {
-        if (this.engine) return this.engine;
-        if (this.initPromise) return this.initPromise;
-
-        console.log(`[AI] Initializing ${this.currentModelId}...`);
-
-        this.initPromise = CreateMLCEngine(
-            this.currentModelId,
-            {
-                appConfig: appConfig,
-                initProgressCallback: onProgress || ((info) => {
-                    console.log(`[AI Init]: ${info.text}`);
-                }),
-                logLevel: "INFO"
-            }
-        );
-
-        this.engine = await this.initPromise;
-        this.initPromise = null;
-        return this.engine;
+        console.log(`[AI] Waiting for BrowserPod to initialize...`);
+        // The App component triggers BrowserPodManager.initialize()
     }
 
     /**
@@ -130,9 +48,7 @@ export class AIEnchancer {
         onDelta: (chunk: string) => void,
         contextType: 'coding' | 'creative' | 'general' = 'coding'
     ): Promise<string> {
-        const engine = await this.ensureEngine();
-
-        // Specialized System Prompts
+        
         const systemPrompt = contextType === 'coding' 
             ? `You are an expert AI coding assistant for Azalea.
 Language: Azalea (Indentation-based, Python-like structure, UI primitives: box, text, button).
@@ -144,36 +60,98 @@ Rules:
             : `You are a helpful, concise AI assistant.`;
 
         const messages = [
-            { role: "system" as const, content: systemPrompt },
-            { role: "user" as const, content: prompt }
+            { role: "system", content: systemPrompt },
+            { role: "user", content: prompt }
         ];
 
+        // Get current URL
+        const baseUrl = this.proxyUrls[this.currentProvider];
+        
+        if (!baseUrl) {
+            console.warn(`[AI] Provider ${this.currentProvider} is not ready yet (BrowserPod starting).`);
+            return "// Error: AI System Starting... Please wait.";
+        }
+
+        const endpoint = `${baseUrl}/v1/chat/completions`;
+        // Models (can be anything for the mock/proxy)
+        const model = "default-model"; 
+
+        return this.generateLocalProxy(endpoint, model, messages, onDelta);
+    }
+
+    private async generateLocalProxy(endpoint: string, model: string, messages: any[], onDelta: (chunk: string) => void): Promise<string> {
         try {
-            const completion = await engine.chat.completions.create({
-                messages,
-                temperature: 0.1, // Low temperature for precise code
-                stream: true,
-                max_tokens: 1024, // Lower token limit for speed/small models
+            const response = await fetch(endpoint, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer sk-dummy"
+                },
+                body: JSON.stringify({
+                    model: model,
+                    messages,
+                    stream: true
+                })
             });
 
-            let fullText = "";
-            for await (const chunk of completion) {
-                const delta = chunk.choices[0]?.delta?.content || "";
-                if (delta) {
-                    fullText += delta;
-                    onDelta(delta);
-                }
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`AI Proxy Error (${this.currentProvider}): ${response.status} - ${errorText}`);
             }
-            return fullText;
+
+            return this.processStream(response, onDelta);
+
         } catch (e) {
-            console.error("AI Generation Error:", e);
-            throw e;
+            console.error(`AI Generation Error (${this.currentProvider}):`, e);
+            return `// Error: AI Proxy Connection Failed. (${e instanceof Error ? e.message : String(e)})`;
         }
     }
 
-    // --- Public Interface (Enhanced for Streaming) ---
+    private async processStream(response: Response, onDelta: (chunk: string) => void): Promise<string> {
+        if (!response.body) throw new Error("No response body");
 
-    // Classic one-shot enhance (backward compatibility, but uses streaming internally)
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let fullText = "";
+        let buffer = "";
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            buffer += decoder.decode(value, { stream: true });
+            
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || ""; 
+
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (trimmed === "data: [DONE]") continue;
+                if (trimmed.startsWith("data: ")) {
+                    try {
+                        const jsonStr = trimmed.slice(6);
+                        const json = JSON.parse(jsonStr);
+                        
+                        // OpenAI format compatible
+                        const content = json.choices?.[0]?.delta?.content || "";
+
+                        if (content) {
+                            fullText += content;
+                            onDelta(content);
+                        }
+                    } catch (e) {
+                        // Ignore partial JSON parse errors
+                    }
+                }
+            }
+        }
+        return fullText;
+    }
+
+
+
+    // --- Public Interface ---
+
     public async enhance(code: string, onUpdate?: (partial: string) => void): Promise<string> {
         let buffer = "";
         return this.streamGenerate(
@@ -226,8 +204,6 @@ Rules:
         this.userPreferences[key] = value;
     }
 
-    // --- Advanced Capabilities ---
-
     public async generateModule(moduleName: string): Promise<string> {
         return this.streamGenerate(
             `Generate a purely functional module named "${moduleName}" in Azalea syntax. Include exported functions.`,
@@ -237,18 +213,7 @@ Rules:
     }
 
     public async ragSearch(query: string, context: string[], onUpdate?: (partial: string) => void): Promise<string> {
-        const keywords = query.toLowerCase().replace(/[?.,!]/g, '').split(' ').filter(w => w.length > 3);
-        
-        let relevantContext = context;
-        if (keywords.length > 0) {
-             relevantContext = context.filter(c => 
-                keywords.some(k => c.toLowerCase().includes(k))
-            );
-        }
-        
-        if (relevantContext.length === 0) relevantContext = context.slice(0, 5);
-        const contextBlock = relevantContext.slice(0, 5).join('\n---\n');
-
+        const contextBlock = context.slice(0, 10).join('\n---\n');
         let buffer = "";
         return this.streamGenerate(
             `Context:\n${contextBlock}\n\nQuery: ${query}\n\nAnswer the query using the context provided. Be concise.`,
@@ -273,14 +238,14 @@ Rules:
     }
 
     public async runAgentStep(agentName: string, history: string[], onUpdate?: (partial: string) => void): Promise<string> {
-        const historyBlock = history.slice(-5).join('\n'); // Reduced context for smaller models
+        const historyBlock = history.slice(-10).join('\n'); 
         let buffer = "";
         return this.streamGenerate(
             `You are an autonomous agent named ${agentName}.
-History:
-${historyBlock}
-
-Decide the next action. Output concise thought and action.`,
+        History:
+        ${historyBlock}
+        
+            Decide the next action. Output concise thought and action.`,
             (delta) => {
                 buffer += delta;
                 if (onUpdate) onUpdate(buffer);
