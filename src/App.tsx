@@ -9,17 +9,26 @@ function App() {
   const [currentView, setCurrentView] = useState<'landing' | 'playground'>('landing');
 
   useEffect(() => {
-      // Boot BrowserPod in background
+      // Boot BrowserPod in background non-blocking
       const bootAI = async () => {
         try {
-          await BrowserPodManager.getInstance().initialize();
-          // After Pod is ready, preload checks will pass
-          await AIEnchancer.getInstance().preload();
+          // We do NOT await here to allow React to render immediately
+          // BrowserPod initialization happens in parallel
+          BrowserPodManager.getInstance().initialize().then(() => {
+              AIEnchancer.getInstance().preload();
+          });
         } catch (e) {
           console.error("AI System Boot Failed:", e);
         }
       };
-      bootAI();
+      
+      // Use requestIdleCallback if available to further delay heavy lifting
+      if ('requestIdleCallback' in window) {
+          // @ts-ignore
+          window.requestIdleCallback(() => bootAI());
+      } else {
+          setTimeout(bootAI, 500);
+      }
   }, []);
 
   return (
